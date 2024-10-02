@@ -5,6 +5,7 @@ import 'package:pwith/common/const/colors.dart';
 import 'package:pwith/common/layout/default_layout.dart';
 import 'package:pwith/common/provider/root_tab_index_provider.dart';
 import 'package:pwith/common/view/home_screen.dart';
+import 'package:pwith/plogging/view/plogging_play_screen.dart';
 
 class RootTab extends ConsumerStatefulWidget {
   const RootTab({super.key});
@@ -94,7 +95,7 @@ class _RootTabState extends ConsumerState<RootTab>
           controller: controller,
           children: const [
             HomeScreen(),
-            Center(child: Text('Plogging')),
+            PloggingPlayScreen(),
             Center(child: Text('Commmunity')),
             Center(child: Text('Profile')),
           ]),
