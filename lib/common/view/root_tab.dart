@@ -4,6 +4,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:pwith/common/const/colors.dart';
 import 'package:pwith/common/layout/default_layout.dart';
 import 'package:pwith/common/provider/root_tab_index_provider.dart';
+import 'package:pwith/common/view/home_screen.dart';
 
 class RootTab extends ConsumerStatefulWidget {
   const RootTab({super.key});
@@ -92,7 +93,7 @@ class _RootTabState extends ConsumerState<RootTab>
           physics: const NeverScrollableScrollPhysics(), // scroll로는 화면 전환 x
           controller: controller,
           children: const [
-            Center(child: Text('Home')),
+            HomeScreen(),
             Center(child: Text('Plogging')),
             Center(child: Text('Commmunity')),
             Center(child: Text('Profile')),
