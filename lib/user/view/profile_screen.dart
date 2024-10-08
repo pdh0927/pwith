@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pwith/user/view/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -53,9 +55,41 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
+            ElevatedButton(
+              onPressed: () {
+                logout(context);
+              },
+              child: const Row(
+                children: [
+                  Text('로그아웃'),
+                ],
+              ),
+            ),
           ],
         ),
       ],
     );
+  }
+
+  void logout(BuildContext context) async {
+    try {
+      // Firebase 로그아웃
+      FirebaseAuth.instance.signOut().then((value) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(),
+          ),
+        );
+      });
+
+      // 카카오 로그아웃
+      // await UserApi.instance.logout();
+
+      print('로그아웃 성공, SDK에서 토큰 삭제');
+    } catch (error) {
+      print('로그아웃 실패, SDK에서 토큰 삭제 $error');
+    }
+
+    // 파이어베이스 로그아웃
   }
 }
