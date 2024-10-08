@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "99264897779",
+    "project_id": "pwith-e04d4",
+    "storage_bucket": "pwith-e04d4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:99264897779:android:1c595e036ed2405fc98d86",
+        "android_client_info": {
+          "package_name": "com.dh.pwith"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5Rz54FeRp1QoUu5F4bNO2aN_p2l7tCHs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
