@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pwith/common/layout/default_layout.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -67,6 +68,18 @@ class HomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: Text('챌린지1    챌린지2'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs
+                    .remove('plogging_data'); // 'plogging_data' 키의 데이터 삭제
+                print('Plogging data cleared.');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Plogging 데이터가 삭제되었습니다.')),
+                );
+              },
             ),
           ],
         ),
