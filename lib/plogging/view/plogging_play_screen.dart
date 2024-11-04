@@ -15,6 +15,7 @@ import 'package:pwith/plogging/component/plogging_play/ready_content.dart';
 import 'package:pwith/plogging/model/plogging_model.dart';
 import 'package:pwith/plogging/shared_preferences/shared_preferences.dart';
 
+// 플로깅 화면
 class PloggingPlayScreen extends StatefulWidget {
   const PloggingPlayScreen({super.key});
 
@@ -23,60 +24,65 @@ class PloggingPlayScreen extends StatefulWidget {
 }
 
 class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
-  bool isPlaying = false;
-  bool isPaused = false;
+  bool isPlaying = false; // 플로깅 진행 여부
+  bool isPaused = false; // 일시정지 상태 여부
   int steps = 0; // 현재 걸음 수
-  int initialSteps = 0; // 초기 걸음 수 저장
+  int initialSteps = 0; // 초기 걸음 수
   double totalDistance = 0.0; // 이동 거리 (km)
-  Position? _lastPosition; // 이전 위치 저장
+  Position? _lastPosition; // 마지막 위치 정보 저장
 
   DateTime? startTime; // 플로깅 시작 시각
   DateTime? pauseStartTime; // 일시정지 시작 시각
-  Duration pausedDuration = Duration.zero; // 누적된 일시 정지 시각
+  Duration pausedDuration = Duration.zero; // 총 일시정지 시간
   Timer? timer;
-  int challengeGoal = 20; // 목표 수집 개수
-  int collectedItems = 0; // 수집한 쓰레기 개수
+  int challengeGoal = 20; // 챌린지 목표 수집 개수
+  int collectedItems = 0; // 현재 수집한 쓰레기 개수
   StreamSubscription<StepCount>? pedometerSubscription;
 
-  // 종료 이미지 파일 변수
-  XFile? _pickedImage;
+  XFile? _pickedImage; // 종료 시 촬영한 이미지 파일
 
+  // 플로깅 시작 이후 경과 시간 계산
   Duration get _elapsedTime {
     if (startTime == null) return Duration.zero;
+
     final now = DateTime.now();
     final totalElapsed = now.difference(startTime!);
 
-    return totalElapsed - pausedDuration;
+    return totalElapsed - pausedDuration; // 일시정지 시간 제외한 경과 시간
   }
 
   @override
   void initState() {
     super.initState();
-    _requestPermissionsAndStartTracking(); // 권한 요청 및 추적 시작
-    _loadAndResumePlogging();
+    _requestPermissionsAndStartTracking(); // 위치 및 걸음 추적 권한 요청 및 시작
+    _loadAndResumePlogging(); // 저장된 데이터 로드 및 재개
   }
 
-  // 필수 권한 요청 및 GPS 시작
+  /// 위치 및 걸음 권한 요청 및 추적 시작
   Future<void> _requestPermissionsAndStartTracking() async {
     bool locationGranted = await _requestLocationPermission();
+
     if (locationGranted) {
       _startLocationTracking();
-      _initializePedometer(); // 만보기 시작
+      _initializePedometer();
     } else {
       print('필수 권한이 부여되지 않았습니다.');
     }
   }
 
-  // 위치 권한 요청 및 확인
+  // 위치 권한 요청 함수
   Future<bool> _requestLocationPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
+
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
+
     return permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always;
   }
 
+  /// 저장된 플로깅 데이터 불러오기 및 재개
   Future<void> _loadAndResumePlogging() async {
     final savedData = await loadPloggingData();
 
@@ -93,7 +99,7 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
       });
 
       if (isPlaying) {
-        _startTimer(); // 진행 중이었다면 타이머 재개
+        _startTimer(); // 타이머 재개
         _startLocationTracking(); // 위치 추적 재개
       }
     }
@@ -122,7 +128,7 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
     );
   }
 
-  // 플로깅 시작
+  // 플로깅 시작 설정
   void startPlogging() {
     setState(() {
       isPlaying = true;
@@ -131,13 +137,13 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
     });
   }
 
-  // 플로깅 재개
+  // 일시정지 상태에서 플로깅 재개
   void _resumeTimer() {
     if (pauseStartTime != null) {
       setState(() {
-        // 누적 일시 정지 시간 업데이트
-        pausedDuration += DateTime.now().difference(pauseStartTime!);
-        pauseStartTime = null; // 일시 정지 시간 초기화
+        pausedDuration +=
+            DateTime.now().difference(pauseStartTime!); // 일시정지 시간 누적
+        pauseStartTime = null;
         isPaused = false;
         _startTimer(); // 타이머 재개
       });
@@ -151,48 +157,51 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
     });
   }
 
-  // 타이머 멈춤
+  // 타이머 일시정지
   void _pauseTimer() {
     if (pauseStartTime == null) {
       setState(() {
-        pauseStartTime = DateTime.now(); // 일시 정지 시작 시간 기록
+        pauseStartTime = DateTime.now(); // 일시정지 시작 시간 기록
         isPaused = true;
-        timer?.cancel(); // 타이머 중단
+        timer?.cancel();
       });
     }
   }
 
-  // 종료 버튼 로직
+  // 플로깅 종료 및 데이터 저장
   Future<void> _endPlogging() async {
     final endTime = DateTime.now();
 
-    // 1. 현재 로그인된 사용자의 UID 가져오기
+    // 현재 로그인된 사용자 UID 가져오기
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       _showErrorDialog('로그인된 사용자가 없습니다.');
+
       return;
     }
+
     final uid = user.uid;
 
-    // 2. 사진 촬영
+    // 종료 이미지 촬영
     final picker = ImagePicker();
     _pickedImage = await picker.pickImage(source: ImageSource.camera);
 
     if (_pickedImage == null) {
       _showErrorDialog('사진 촬영에 실패했습니다.');
+
       return;
     }
 
-    // 3. Firebase Storage에 이미지 업로드
+    // Firebase Storage에 이미지 업로드
     final storageRef = FirebaseStorage.instance
         .ref()
         .child('plogging/result/${DateTime.now().toIso8601String()}');
     final uploadTask = storageRef.putFile(File(_pickedImage!.path));
     final imageUrl = await (await uploadTask).ref.getDownloadURL();
 
-    // 4. Firestore에 데이터 저장
+    // Firestore에 플로깅 데이터 저장
     await FirebaseFirestore.instance.collection('ploggings').add({
-      'uid': uid, // 사용자 UID 저장
+      'uid': uid,
       'startTime': startTime?.toIso8601String(),
       'endTime': endTime.toIso8601String(),
       'steps': steps,
@@ -201,10 +210,10 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
       'imageUrl': imageUrl,
     });
 
-    // 5. 플로깅 초기화 및 화면 종료
-    _resetPlogging();
+    _resetPlogging(); // 플로깅 데이터 초기화
   }
 
+  // 플로깅 데이터 초기화
   void _resetPlogging() {
     setState(() {
       isPlaying = false;
@@ -234,7 +243,7 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
     });
   }
 
-  // GPS 위치 추적 시작
+  // 위치 추적 및 거리 계산
   void _startLocationTracking() {
     Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
@@ -257,24 +266,32 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
     });
   }
 
-  /// **카메라 사진 촬영**
-  Future<void> _pickImage() async {
+  // 카메라 사진 촬영 및 수집 아이템 추가
+  Future<bool> _pickImage() async {
     try {
       setState(() {
         collectedItems += 1;
       });
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
       if (image != null) {
         print('사진 촬영 성공');
+
+        return true; // 재활용품 인식 성공 시
+
+        // 촬영 실패 시 로직
       }
+      return false;
     } catch (e) {
       print('사진 촬영 오류: $e');
       _showErrorDialog('사진 촬영에 실패했습니다.');
+
+      return false;
     }
   }
 
-  /// 에러 다이얼로그 표시
+  // 오류 메시지 표시
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
