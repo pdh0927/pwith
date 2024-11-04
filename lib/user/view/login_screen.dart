@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pwith/common/const/colors.dart';
 import 'package:pwith/common/layout/default_layout.dart';
 import 'package:pwith/common/view/root_tab.dart';
 
@@ -18,90 +19,102 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultLayout(
-      backgroundColor: Colors.white,
+      backgroundColor: PRIMARY_COLOR,
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 50),
+              const SizedBox(height: 100),
 
               // 앱 이름
-              const Text(
-                'Pwith',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
+              // const Text(
+              //   'Pwith',
+              //   style: TextStyle(
+              //     fontSize: 32,
+              //     fontWeight: FontWeight.bold,
+              //     color: Colors.black,
+              //   ),
+              // ),
               const SizedBox(height: 20),
 
               // 앱 로고
-              const CircleAvatar(
-                radius: 60,
-                backgroundImage:
-                    AssetImage('assets/images/logo.png'), // 로고 이미지 추가
+              Image.asset(
+                'assets/images/logo.png',
+                height: 180,
+                width: 180,
               ),
-              const SizedBox(height: 40),
+              // const CircleAvatar(
+              //   radius: 60,
+              //   backgroundImage:
+              //       AssetImage('assets/images/logo.png'), // 로고 이미지 추가
+              // ),
+              const SizedBox(height: 120),
+              const Spacer(),
 
               // 환영 메시지
-              const Text(
-                '플로깅과 함께하는 깨끗한 세상',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-                textAlign: TextAlign.center,
-              ),
+              // const Text(
+              //   '플로깅과 함께하는 깨끗한 세상',
+              //   style: TextStyle(
+              //     fontSize: 24,
+              //     fontWeight: FontWeight.w500,
+              //     color: Colors.black87,
+              //   ),
+              //   textAlign: TextAlign.center,
+              // ),
               const SizedBox(height: 60),
 
               // 애플 로그인 버튼 (iOS에서만 표시)
               if (Platform.isIOS)
-                ElevatedButton.icon(
-                  onPressed: _signInWithApple,
-                  icon: const Icon(Icons.apple, size: 24),
-                  label: const Text('애플 로그인', style: TextStyle(fontSize: 16)),
-                  style: _buttonStyle(Colors.black),
+                SizedBox(
+                  height: 60,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _signInWithApple,
+                    style: _buttonStyle(Colors.black).copyWith(
+                      padding: WidgetStateProperty.all(
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                      ),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Icon(Icons.apple, size: 27),
+                        Text('Apple로 로그인', style: TextStyle(fontSize: 18)),
+                        SizedBox(width: 0),
+                      ],
+                    ),
+                  ),
                 ),
+
               const SizedBox(height: 16),
 
               // 카카오 로그인 버튼
-              ElevatedButton.icon(
-                onPressed: _signInWithKakao,
-                icon: const Icon(
-                  Icons.chat_bubble,
-                  size: 24,
-                  color: Colors.yellow,
+              InkWell(
+                onTap: _signInWithKakao,
+                child: Image.asset(
+                  'assets/images/kakao_login.png',
+                  height: 60,
+                  width: double.infinity,
                 ),
-                label: const Text('카카오 로그인', style: TextStyle(fontSize: 16)),
-                style: _buttonStyle(Colors.yellow.shade700),
               ),
-              const SizedBox(height: 16),
+
+              const SizedBox(height: 0),
 
               // 건너뛰기 버튼
               TextButton(
                 onPressed: goToRootTab,
-                child: const Text(
+                child: Text(
                   '건너뛰기',
                   style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
+                    fontSize: 14,
+                    color: Colors.grey[800],
                   ),
                 ),
               ),
 
-              const Spacer(),
-
-              // 하단 설명
-              const Text(
-                '계속 진행함으로써 서비스 약관과 개인정보 처리방침에 동의합니다.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 60),
             ],
           ),
         ),
@@ -114,7 +127,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final appleProvider = AppleAuthProvider();
 
     await FirebaseAuth.instance.signInWithProvider(appleProvider).then((value) {
-      print(value.user);
       goToRootTab();
     }).onError((error, stackTrace) {
       print('error $error');
