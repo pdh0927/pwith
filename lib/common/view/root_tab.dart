@@ -69,8 +69,8 @@ class _RootTabState extends ConsumerState<RootTab>
           BottomNavigationBarItem(
             icon: Icon(
               ref.watch(rootTabIndexProvider) == 1
-                  ? PhosphorIconsFill.wind
-                  : PhosphorIcons.wind(),
+                  ? PhosphorIconsFill.sneakerMove
+                  : PhosphorIcons.sneakerMove(),
             ),
             label: '플로깅',
           ),
@@ -85,8 +85,8 @@ class _RootTabState extends ConsumerState<RootTab>
           BottomNavigationBarItem(
             icon: Icon(
               ref.watch(rootTabIndexProvider) == 3
-                  ? PhosphorIconsFill.person
-                  : PhosphorIcons.person(),
+                  ? PhosphorIconsFill.user
+                  : PhosphorIcons.user(),
             ),
             label: '프로필',
           ),
