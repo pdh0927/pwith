@@ -10,6 +10,7 @@ class PlayContent extends StatelessWidget {
   final double totalDistance; // 총 이동 거리
   final int steps; // 총 걸음 수
   final Duration elapsedTime; // 경과 시간
+  final String challengeDescription; // 챌린지 설명
   final VoidCallback onPause; // 일시정지 동작 콜백
   final Future<bool> Function() onPickImage; // 이미지 선택 기능 콜백
 
@@ -20,6 +21,7 @@ class PlayContent extends StatelessWidget {
     required this.totalDistance,
     required this.steps,
     required this.elapsedTime,
+    required this.challengeDescription,
     required this.onPause,
     required this.onPickImage,
   });
@@ -142,9 +144,9 @@ class PlayContent extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text(
-                        '플라스틱 20개 줍기',
-                        style: TextStyle(
+                      Text(
+                        challengeDescription, // 챌린지 설명 표시
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),

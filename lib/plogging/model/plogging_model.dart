@@ -8,6 +8,7 @@ class PloggingPlayModel {
   final DateTime startTime; // 플로깅 시작 시간
   final Duration pausedDuration; // 일시 정지된 시간 총합
   final DateTime? endTime; // 종료 시간
+  final String challengeDescription; // 챌린지 설명
 
   const PloggingPlayModel({
     required this.steps,
@@ -18,6 +19,7 @@ class PloggingPlayModel {
     required this.totalDistance,
     required this.startTime,
     required this.pausedDuration,
+    required this.challengeDescription,
     this.endTime,
   });
 
@@ -32,6 +34,7 @@ class PloggingPlayModel {
       'startTime': startTime.toIso8601String(),
       'pausedDuration': pausedDuration.inSeconds,
       'endTime': endTime?.toIso8601String(),
+      'challengeDescription': challengeDescription,
     };
   }
 
@@ -46,6 +49,7 @@ class PloggingPlayModel {
       startTime: DateTime.parse(json['startTime']),
       pausedDuration: Duration(seconds: json['pausedDuration']),
       endTime: json['endTime'] != null ? DateTime.parse(json['endTime']) : null,
+      challengeDescription: json['challengeDescription'] ?? 'No description',
     );
   }
 }
