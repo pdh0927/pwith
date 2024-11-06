@@ -18,6 +18,7 @@ class FinishScreen extends StatefulWidget {
   final String challengeDescription; // 챌린지 설명
   final int collectedItems; // 수집된 아이템 수
   final int challengeGoal; // 챌린지 목표 아이템 수
+  final DateTime startTime; // 플로깅 시작 시각
 
   const FinishScreen({
     super.key,
@@ -27,6 +28,7 @@ class FinishScreen extends StatefulWidget {
     required this.challengeDescription,
     required this.collectedItems,
     required this.challengeGoal,
+    required this.startTime,
   });
 
   @override
@@ -69,6 +71,7 @@ class _FinishScreenState extends State<FinishScreen> {
                     _PhotoSection(
                       localImageFile: localImageFile,
                       onCapture: captureAndCropImage,
+                      startTime: widget.startTime,
                     ),
 
                     const SizedBox(height: 10),
@@ -122,7 +125,7 @@ class _FinishScreenState extends State<FinishScreen> {
     if (pickedImage != null) {
       final croppedImage = await ImageCropper().cropImage(
         sourcePath: pickedImage.path,
-        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 0.7),
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: '1:1로 자르기',
@@ -176,6 +179,7 @@ class _FinishScreenState extends State<FinishScreen> {
       'challengeGoal': widget.challengeGoal,
       'imageUrl': imageUrl,
       'timestamp': DateTime.now(),
+      'startTime': widget.startTime.toIso8601String(), // 시작 시각 추가
     };
 
     await FirebaseFirestore.instance
@@ -205,8 +209,13 @@ class _FinishScreenState extends State<FinishScreen> {
 class _PhotoSection extends StatelessWidget {
   final File? localImageFile;
   final VoidCallback onCapture;
+  final DateTime startTime; // 플로깅 시작 시간 추가
 
-  const _PhotoSection({this.localImageFile, required this.onCapture});
+  const _PhotoSection({
+    this.localImageFile,
+    required this.onCapture,
+    required this.startTime,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -214,28 +223,59 @@ class _PhotoSection extends StatelessWidget {
       aspectRatio: 1.43, // 1.43:1 비율 (가로 대비 세로 0.7 비율)
       child: InkWell(
         onTap: localImageFile != null ? null : onCapture,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            border: Border.all(
-              color: Colors.grey.withOpacity(0.5),
-            ),
-          ),
-          child: localImageFile != null
-              ? Image.file(
-                  localImageFile!,
-                  fit: BoxFit.cover,
-                )
-              : Center(
-                  child: Icon(
-                    Icons.camera_alt,
-                    size: 50,
-                    color: Colors.grey[500],
-                  ),
+        child: Stack(
+          children: [
+            // 이미지 또는 카메라 아이콘 표시
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.5),
                 ),
+              ),
+              child: localImageFile != null
+                  ? Image.file(
+                      localImageFile!,
+                      fit: BoxFit.cover,
+                    )
+                  : Center(
+                      child: Icon(
+                        Icons.camera_alt,
+                        size: 50,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+            ),
+            // 우 하단에 시작 날짜 및 시간 표시
+            Positioned(
+              bottom: 8,
+              right: 8,
+              child: Text(
+                _formatDateTime(startTime),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(1, 1),
+                      color: Colors.black,
+                      blurRadius: 15,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  // 시작 시간을 "년.월.일 시:분" 형식으로 변환하는 함수
+  String _formatDateTime(DateTime dateTime) {
+    return "${dateTime.year}.${dateTime.month.toString().padLeft(2, '0')}.${dateTime.day.toString().padLeft(2, '0')} "
+        "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
   }
 }
 
@@ -437,7 +477,19 @@ class _SaveButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () => onSave(),
+      onPressed: () {
+        onSave().then((_) {
+          Navigator.of(context).pop();
+        }).catchError((e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('데이터 저장에 실패했습니다'),
+              backgroundColor: Colors.redAccent,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        });
+      },
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         backgroundColor: Colors.redAccent,
