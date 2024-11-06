@@ -27,6 +27,7 @@ class DefaultLayout extends StatelessWidget {
     return Sizer(builder: (context, orientation, deviceType) {
       return Scaffold(
         appBar: renderAppBar(),
+        resizeToAvoidBottomInset: false,
         backgroundColor: backgroundColor ?? Colors.white,
         body: child,
         bottomNavigationBar: bottomNavigationBar,

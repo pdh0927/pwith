@@ -19,3 +19,9 @@ Future<PloggingPlayModel?> loadPloggingData() async {
   }
   return null; // 저장된 데이터가 없을 경우
 }
+
+Future<void> removePloggingData() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  await prefs.remove('plogging_data');
+}

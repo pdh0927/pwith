@@ -50,6 +50,7 @@ dependencies:
   riverpod: ^2.6.0
   cloud_firestore: ^5.4.4
   firebase_storage: ^12.3.4
+  image_cropper: ^8.0.2
 
 dev_dependencies:
   flutter_test:
