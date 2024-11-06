@@ -1,7 +1,9 @@
+// 플로깅 상태를 관리하는 enum
+enum PloggingState { playing, paused }
+
 class PloggingPlayModel {
   final int steps; // 걸음 수
-  final bool isPaused; // 일시 정지 여부
-  final bool isPlaying; // 진행 중인지 여부
+  final PloggingState ploggingState; // 진행 중인지 여부
   final int collectedItems; // 수집한 쓰레기 개수
   final int challengeGoal; // 챌린지 목표 개수
   final double totalDistance; // 총 이동 거리 (km)
@@ -12,8 +14,7 @@ class PloggingPlayModel {
 
   const PloggingPlayModel({
     required this.steps,
-    required this.isPaused,
-    required this.isPlaying,
+    required this.ploggingState,
     required this.collectedItems,
     required this.challengeGoal,
     required this.totalDistance,
@@ -26,8 +27,8 @@ class PloggingPlayModel {
   Map<String, dynamic> toJson() {
     return {
       'steps': steps,
-      'isPaused': isPaused,
-      'isPlaying': isPlaying,
+      'ploggingState':
+          ploggingState == PloggingState.playing ? 'playing' : 'paused',
       'collectedItems': collectedItems,
       'challengeGoal': challengeGoal,
       'totalDistance': totalDistance,
@@ -41,8 +42,9 @@ class PloggingPlayModel {
   factory PloggingPlayModel.fromJson(Map<String, dynamic> json) {
     return PloggingPlayModel(
       steps: json['steps'],
-      isPaused: json['isPaused'],
-      isPlaying: json['isPlaying'],
+      ploggingState: json['ploggingState'] == 'playing'
+          ? PloggingState.playing
+          : PloggingState.paused,
       collectedItems: json['collectedItems'],
       challengeGoal: json['challengeGoal'],
       totalDistance: json['totalDistance'].toDouble(),
