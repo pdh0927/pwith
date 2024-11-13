@@ -8,6 +8,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:pwith/common/const/colors.dart';
 import 'package:pwith/common/layout/default_layout.dart';
+import 'package:pwith/plogging/shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 
 // 플로깅 종료 시 보여주는 화면
@@ -105,7 +106,11 @@ class _FinishScreenState extends State<FinishScreen> {
             ),
             const SizedBox(height: 20),
             // 저장 버튼
-            _SaveButton(onSave: savePloggingDataToFirebase),
+            _SaveButton(onSave: () async {
+              await savePloggingDataToFirebase();
+              await updateTotalData(
+                  widget.totalDistance, widget.collectedItems);
+            }),
           ],
         ),
       ),
@@ -185,6 +190,52 @@ class _FinishScreenState extends State<FinishScreen> {
     await FirebaseFirestore.instance
         .collection('plogging-result')
         .add(ploggingData);
+  }
+
+  // 총 데이터 업데이트 함수
+  Future<void> updateTotalData(
+      double distanceIncrement, int trashIncrement) async {
+    final totalDataRef =
+        FirebaseFirestore.instance.collection('total-data').limit(1);
+
+    // 기존 데이터 가져오기
+    final snapshot = await totalDataRef.get();
+
+    if (snapshot.docs.isNotEmpty) {
+      final doc = snapshot.docs.first;
+      final data = doc.data();
+
+      // 기존 값에 플로깅 결과를 더한 새로운 데이터 생성
+      final updatedData = {
+        'distance': (data['distance'] ?? 0) + widget.totalDistance,
+        'trash': (data['trash'] ?? 0) + widget.collectedItems,
+      };
+
+      // 데이터 업데이트
+      await doc.reference.update(updatedData);
+    } else {
+      // 문서가 없으면 새로운 문서 생성
+      await FirebaseFirestore.instance.collection('total-data').add({
+        'distance': distanceIncrement,
+        'trash': trashIncrement,
+      });
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchTotalData() async {
+    // Firestore에서 'total-data' 컬렉션의 첫 번째 문서를 가져오기
+    final snapshot = await FirebaseFirestore.instance
+        .collection('total-data')
+        .limit(1) // 첫 번째 문서만 가져옴
+        .get();
+
+    // 문서가 존재하면 해당 필드 값을 Map으로 반환
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs.first.data();
+    } else {
+      // 문서가 없으면 기본값 반환
+      return {'distance': 0, 'trash': 0};
+    }
   }
 
   // 에러 다이얼로그 표시
@@ -479,6 +530,7 @@ class _SaveButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: () {
         onSave().then((_) {
+          removePloggingData();
           Navigator.of(context).pop();
         }).catchError((e) {
           ScaffoldMessenger.of(context).showSnackBar(
