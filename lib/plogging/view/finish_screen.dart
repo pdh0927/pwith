@@ -178,7 +178,7 @@ class _FinishScreenState extends State<FinishScreen> {
       'collectedItems': widget.collectedItems,
       'challengeGoal': widget.challengeGoal,
       'imageUrl': imageUrl,
-      'timestamp': DateTime.now(),
+      'endTime': DateTime.now(),
       'startTime': widget.startTime.toIso8601String(), // 시작 시각 추가
     };
 
