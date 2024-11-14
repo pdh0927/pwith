@@ -184,7 +184,7 @@ class _FinishScreenState extends State<FinishScreen> {
       'challengeGoal': widget.challengeGoal,
       'imageUrl': imageUrl,
       'endTime': DateTime.now(),
-      'startTime': widget.startTime.toIso8601String(), // 시작 시각 추가
+      'startTime': widget.startTime, // 시작 시각 추가
     };
 
     await FirebaseFirestore.instance
