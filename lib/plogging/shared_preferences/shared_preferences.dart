@@ -22,6 +22,6 @@ Future<PloggingPlayModel?> loadPloggingData() async {
 
 Future<void> removePloggingData() async {
   final prefs = await SharedPreferences.getInstance();
-
+  print('Plogging 데이터가 삭제되었습니다.');
   await prefs.remove('plogging_data');
 }

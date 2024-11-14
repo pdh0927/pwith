@@ -54,18 +54,18 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
     _requestPermissionsAndStartTracking();
     _loadAndResumePlogging();
     _initializeChallenge();
-    startPlogging();
+    _startPlogging();
   }
 
   // 챌린지 목표와 설명을 Firebase에서 가져오기
   Future<void> _initializeChallenge() async {
-    challengeGoal = await fetchChallengeGoal();
-    challengeDescription = await fetchChallengeDescription();
+    challengeGoal = await _fetchChallengeGoal();
+    challengeDescription = await _fetchChallengeDescription();
     setState(() {});
   }
 
-  Future<int> fetchChallengeGoal() async => 20;
-  Future<String> fetchChallengeDescription() async => '플라스틱 20개 줍기';
+  Future<int> _fetchChallengeGoal() async => 20;
+  Future<String> _fetchChallengeDescription() async => '플라스틱 20개 줍기';
 
   Future<void> _requestPermissionsAndStartTracking() async {
     if (await _requestLocationPermission()) {
@@ -153,7 +153,7 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
         permission == LocationPermission.always;
   }
 
-  void startPlogging() {
+  void _startPlogging() {
     setState(() {
       ploggingState = PloggingState.playing;
       startTime ??= DateTime.now();
@@ -161,7 +161,7 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
     });
   }
 
-  void pauseTimer() {
+  void _pauseTimer() {
     setState(() {
       pauseStartTime = DateTime.now();
       ploggingState = PloggingState.paused;
@@ -169,7 +169,7 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
     });
   }
 
-  void resumeTimer() {
+  void _resumeTimer() {
     setState(() {
       pausedDuration += DateTime.now().difference(pauseStartTime!);
       pauseStartTime = null;
@@ -178,7 +178,7 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
     });
   }
 
-  Future<bool> pickImage() async {
+  Future<bool> _pickImage() async {
     try {
       setState(() {
         collectedItems += 1;
@@ -190,19 +190,6 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
       _showErrorDialog('사진 촬영에 실패했습니다.');
       return false;
     }
-  }
-
-  void _resetPlogging() {
-    setState(() {
-      steps = 0;
-      totalDistance = 0.0;
-      startTime = null;
-      pauseStartTime = null;
-      pausedDuration = Duration.zero;
-      collectedItems = 0;
-      challengeDescription = '플라스틱 20개 줍기';
-      challengeGoal = 20;
-    });
   }
 
   @override
@@ -264,7 +251,7 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
               ),
             )
           : PausedContent(
-              resumeTimer: resumeTimer,
+              resumeTimer: _resumeTimer,
               onEnd: () {
                 Navigator.pushReplacement(
                   context,
@@ -276,6 +263,7 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
                       challengeDescription: challengeDescription,
                       collectedItems: collectedItems,
                       challengeGoal: challengeGoal,
+                      startTime: startTime!,
                     ),
                   ),
                 );
@@ -401,7 +389,7 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
                       const SizedBox(height: 8),
                       ElevatedButton(
                         onPressed: () async {
-                          if (await pickImage()) {
+                          if (await _pickImage()) {
                             setState(() {
                               updatedCollectedItems++; // 아이템 수 업데이트
                             });
@@ -460,7 +448,7 @@ class _PloggingPlayScreenState extends State<PloggingPlayScreen> {
   Widget _buildControlButtons() {
     return IconButton(
       icon: const Icon(PhosphorIconsFill.pause, size: 50, color: Colors.white),
-      onPressed: pauseTimer,
+      onPressed: _pauseTimer,
     );
   }
 

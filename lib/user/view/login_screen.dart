@@ -28,42 +28,14 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 100),
 
-              // 앱 이름
-              // const Text(
-              //   'Pwith',
-              //   style: TextStyle(
-              //     fontSize: 32,
-              //     fontWeight: FontWeight.bold,
-              //     color: Colors.black,
-              //   ),
-              // ),
-              const SizedBox(height: 20),
-
               // 앱 로고
               Image.asset(
                 'assets/images/logo.png',
                 height: 180,
                 width: 180,
               ),
-              // const CircleAvatar(
-              //   radius: 60,
-              //   backgroundImage:
-              //       AssetImage('assets/images/logo.png'), // 로고 이미지 추가
-              // ),
-              const SizedBox(height: 120),
-              const Spacer(),
 
-              // 환영 메시지
-              // const Text(
-              //   '플로깅과 함께하는 깨끗한 세상',
-              //   style: TextStyle(
-              //     fontSize: 24,
-              //     fontWeight: FontWeight.w500,
-              //     color: Colors.black87,
-              //   ),
-              //   textAlign: TextAlign.center,
-              // ),
-              const SizedBox(height: 60),
+              const Spacer(),
 
               // 애플 로그인 버튼 (iOS에서만 표시)
               if (Platform.isIOS)
@@ -114,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 60),
+              const SizedBox(height: 30),
             ],
           ),
         ),
