@@ -1,11 +1,12 @@
-import 'dart:io'; // 플랫폼 감지를 위해 추가
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' hide User;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pwith/common/const/colors.dart';
 import 'package:pwith/common/layout/default_layout.dart';
 import 'package:pwith/common/view/root_tab.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // 로그인 화면
 class LoginScreen extends StatefulWidget {
@@ -98,10 +99,16 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _signInWithApple() async {
     final appleProvider = AppleAuthProvider();
 
-    await FirebaseAuth.instance.signInWithProvider(appleProvider).then((value) {
-      goToRootTab();
+    await FirebaseAuth.instance
+        .signInWithProvider(appleProvider)
+        .then((credential) async {
+      final user = credential.user;
+      if (user != null) {
+        await _saveUserToFirestore(user);
+        goToRootTab();
+      }
     }).onError((error, stackTrace) {
-      print('error $error');
+      print('애플 로그인 에러: $error');
     });
   }
 
@@ -115,16 +122,18 @@ class _LoginScreenState extends State<LoginScreen> {
           idToken: token.idToken,
           accessToken: token.accessToken,
         );
-        FirebaseAuth.instance.signInWithCredential(credential);
+        final userCredential =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+        final user = userCredential.user;
 
-        await UserApi.instance.loginWithKakaoTalk().then((value) {
-          print('value from kakao $value');
+        if (user != null) {
+          await _saveUserToFirestore(user);
           goToRootTab();
-        });
+        }
 
         print('카카오톡으로 로그인 성공');
       } catch (error) {
-        print('카카오톡으로 로그인 실패 $error');
+        print('카카오톡으로 로그인 실패: $error');
         if (error is PlatformException && error.code == 'CANCELED') return;
         _kakaoAccountLogin();
       }
@@ -142,16 +151,44 @@ class _LoginScreenState extends State<LoginScreen> {
         idToken: token.idToken,
         accessToken: token.accessToken,
       );
-      FirebaseAuth.instance.signInWithCredential(credential);
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      final user = userCredential.user;
 
-      await UserApi.instance.loginWithKakaoAccount().then((value) {
-        print('value from kakao $value');
+      if (user != null) {
+        await _saveUserToFirestore(user);
         goToRootTab();
-      });
+      }
 
       print('카카오계정으로 로그인 성공');
     } catch (error) {
-      print('카카오계정으로 로그인 실패 $error');
+      print('카카오계정으로 로그인 실패: $error');
+    }
+  }
+
+  Future<void> _saveUserToFirestore(User user) async {
+    final usersRef = FirebaseFirestore.instance.collection('users');
+    final userDoc = usersRef.doc(user.uid);
+
+    final userData = {
+      'uid': user.uid,
+      'nickname': user.displayName ?? '플린이',
+      'ploggingLevel': 1,
+      'createdAt': FieldValue.serverTimestamp(),
+      'image': null,
+    };
+
+    try {
+      final docSnapshot = await userDoc.get();
+
+      if (!docSnapshot.exists) {
+        await userDoc.set(userData);
+        print('Firestore에 사용자 데이터 저장 완료');
+      } else {
+        print('사용자가 이미 Firestore에 존재합니다.');
+      }
+    } catch (e) {
+      print('Firestore에 사용자 데이터 저장 실패: $e');
     }
   }
 
