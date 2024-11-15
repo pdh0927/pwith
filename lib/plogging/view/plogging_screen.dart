@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:pwith/common/const/colors.dart';
 import 'package:pwith/common/layout/default_layout.dart';
 import 'package:pwith/plogging/view/plogging_play_screen.dart';
+import 'package:pwith/user/view/login_screen.dart';
 
 class PloggingScreen extends StatefulWidget {
   const PloggingScreen({super.key});
@@ -25,12 +27,25 @@ class _PloggingScreenState extends State<PloggingScreen> {
             // 시작 버튼
             InkWell(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PloggingPlayScreen(),
-                  ),
-                );
+                final user = FirebaseAuth.instance.currentUser;
+
+                if (user == null) {
+                  // 로그인이 안 된 경우 LoginScreen으로 이동
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                } else {
+                  // 로그인이 된 경우 PloggingPlayScreen으로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PloggingPlayScreen(),
+                    ),
+                  );
+                }
               },
               child: Container(
                 height: 120,
