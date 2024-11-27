@@ -82,7 +82,7 @@
 
 ### 내 플로깅 모아보기
 
-<img src="https://console.firebase.google.com/project/meat-dictionary/storage/meat-dictionary.appspot.com/files/~2Fgit-image~2FPwith?hl=ko" alt="내 플로깅 모아보기" width="300"/>
+<img src="https://firebasestorage.googleapis.com/v0/b/meat-dictionary.appspot.com/o/git-image%2FPwith%2F4.png?alt=media&token=ea2446a8-3c41-4169-993c-e064ad6504e7" alt="내 플로깅 모아보기" width="300"/>
 
 - **기능 설명**
     - 내가 진행한 플로깅 기록을 모아서 표시
