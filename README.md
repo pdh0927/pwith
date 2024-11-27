@@ -1,16 +1,103 @@
-# pwith
+# Pwith
 
-A new Flutter project.
+> 플로깅 함께하고 기록하자
 
-## Getting Started
+🏞️ 모두 함께 플로깅 공유  
+🎯 함께 하는 챌린지  
+⏱️ 추후엔 봉사시간 연계까지  
 
-This project is a starting point for a Flutter application.
+[프로젝트 소개 영상](https://youtube.com/shorts/owm_DOPDYm4)
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 프로젝트 정보
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **작업 기간**: 2024.09 - 진행 中  
+- **팀 구성**: 3명  
+- **내 역할 (기여도)**:
+  - 기획 (30%): 플로깅 캠페인 아이디어 도출 및 서비스 설계
+  - 앱 개발 (100%): 전반적인 앱 개발 및 기능 구현
+- **프로젝트 목적**:
+  - 플로깅 캠페인 및 챌린지 활동의 기록 및 공유를 통해 참여를 유도
+- **프로젝트 내용**:
+  - 진행한 플로깅 기록 및 시각화
+  - 함께 진행하는 플로깅 챌린지 확인
+  - 다른 사람의 플로깅 기록 열람 및 공유
+
+---
+
+## 주요 기능 및 트러블 슈팅
+
+### 플로깅 진행 화면
+
+![플로깅 진행 화면](https://prod-files-secure.s3.us-west-2.amazonaws.com/a3e29db4-24e1-4b27-b8f1-6245f33b8a0b/a3efd73a-bb2f-458f-8ebf-78a134b4f664/KakaoTalk_Photo_2024-11-27-17-21-27_003.png)
+
+- **기능 설명**:
+  - 걸음 수, 진행 시간, 정화한 거리를 기록하여 사용자에게 시각적으로 제공
+  - 사진 촬영을 통해 수집한 아이템(쓰레기)을 기록하고, 챌린지 참여를 유도
+  - 일시 정지 및 재개 기능을 통해 유연한 활동 관리 가능
+
+- **구현 기술**:
+  - `Pedometer`: **걸음 수 추적**
+  - `Geolocator`: **이동 거리 추적**
+  - `SharedPreferences`: 중단 시 데이터(걸음 수, 경과 시간 등)를 저장하고 복구
+
+- **문제점**:
+  1. 진행 전, 진행 중, 멈춤, 끝남의 상태를 구분하고 이에 따른 데이터 기록 및 업데이트의 어려움
+  2. 플로깅 멈춤 상태에서 시간을 정확히 측정하지 않도록 관리해야 하는 어려움
+  3. GPS 신호 불안정으로 인한 부정확한 이동 거리 측정 문제
+
+- **해결책**:
+  1. `PloggingState`를 `enum`으로 정의하여 상태(`playing`, `paused`, `finished`)를 명확히 구분
+  2. 상태 전환 시 데이터를 `SharedPreferences`에 저장해 데이터 손실을 방지하고, 재시작 시 복원
+  3. `LocationAccuracy.high`를 설정해 높은 정확도의 데이터를 수집하며, 최소 이동 거리(`minDistanceChange`) 설정으로 불필요한 갱신 최소화
+
+---
+
+### 함께 공유하는 홈 화면
+
+![홈 화면](https://prod-files-secure.s3.us-west-2.amazonaws.com/a3e29db4-24e1-4b27-b8f1-6245f33b8a0b/0a4819b4-4a1f-4e28-a0c2-cf261ff18708/KakaoTalk_Photo_2024-11-27-17-21-28_005.png)
+
+- **기능 설명**:
+  - 사용자들이 가장 최근에 완료한 플로깅 결과를 공유하여 활동 장려
+  - 플로깅 활동을 통해 수집된 총 쓰레기 수와 정화된 거리 정보를 제공
+  - 유저들이 함께 진행하는 챌린지 표시
+
+- **구현 기술**:
+  - `fold` 메서드를 사용해 플로깅 데이터의 합산 거리 계산
+
+---
+
+### 간편 로그인 구현
+
+![간편 로그인](https://prod-files-secure.s3.us-west-2.amazonaws.com/a3e29db4-24e1-4b27-b8f1-6245f33b8a0b/5c4d5556-bbf3-4fe6-941d-0212f1e1ce32/KakaoTalk_Photo_2024-11-27-17-21-28_006.png)
+
+- **기능 설명**:
+  - 카카오톡, 애플 간편 로그인 제공
+  - 건너뛰기 시 유저의 로그인 상태를 파악하여 사용 기능 제한 및 로그인 유도
+
+- **구현 기술**:
+  - `FirebaseAuth`: **카카오톡, 구글, 애플 간편 로그인 구현**
+
+---
+
+### 내 플로깅 모아보기
+
+![내 플로깅 기록](https://prod-files-secure.s3.us-west-2.amazonaws.com/a3e29db4-24e1-4b27-b8f1-6245f33b8a0b/63677bd0-2329-4562-82b7-2613edf18bb5/KakaoTalk_Photo_2024-11-27-17-21-23_001.png)
+
+- **기능 설명**:
+  - 사용자가 진행한 플로깅 기록을 한눈에 확인
+  - 기록을 선택하면 폴라로이드 형태로 상세 정보 제공
+
+- **구현 기술**:
+  - `Firebase Storage`: 네트워크를 통해 이미지를 불러와 사용
+  - 이미지 용량 최적화를 통해 데이터 사용량 감소
+
+---
+
+## 프로젝트에서 배운 점
+
+- `Pedometer`와 `Geolocator`를 활용한 기록 데이터를 처음 구현하며, 관련 기술의 구현 방법을 익히고 숙련도를 향상시킴
+- 하나의 화면에서 상태(진행 전, 진행 중, 휴식 중, 완료)에 따른 데이터 수집 및 화면 구성을 체계적으로 관리하는 능력을 발전시킴
+- 사진 촬영을 통해 사용자가 수집한 쓰레기를 AI로 판별할 때, 처리 지연 문제에 대한 사용자 경험 개선 방법을 고민하며 사용자 만족도를 유지하는 중요성을 배움
+- 사용자가 로그인하지 않았을 때, 기능 접근의 경계를 명확히 설정하고 자연스럽게 로그인을 유도하는 방식을 구현하며 UX 설계의 중요성을 체감
